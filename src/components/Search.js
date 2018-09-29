@@ -1,11 +1,23 @@
+/**
+ * Search component - main section
+ *
+ * @author monique <monique.dingding@gmail.com>
+ * Sept 29, 2018
+ */
+
 import React, { Component } from 'react'
 import SearchResults from './SearchResults'
+import { gql } from 'apollo-boost'
+import { Query } from 'react-apollo'
 
 class Search extends Component {
-  state = () => ({
-    keyword: null,
-    results: []
-  })
+  constructor (props) {
+    super(props)
+    console.log(props)
+    this.state = {
+      keyword: null
+    }
+  }
 
   // sets the state for any changes in input
   handleChange = (event) => {
@@ -17,30 +29,9 @@ class Search extends Component {
   }
 
   // handles event when submit button is clicked
-  handleSubmit = (value) => {
-    console.log('ang value kay')
-    console.log(this.state)
-
-    // call from graphql endpoint to fetch listings
-    let listings = [
-      {
-        "__typename": "User",
-        "id": "089da2e0-2dce-4580-8a5e-ae551c1dac88",
-        "firstName": "Gina",
-        "lastName": "Vickery",
-        "properties": [
-          {
-            "id": "2f0e9fef-24db-44aa-88ef-b97673349eb2",
-            "city": "Irvine",
-            "state": "CA"
-          }
-        ]
-      }
-    ]
-
-    this.setState({
-      results: listings
-    })
+  handleSubmit = (event) => {
+    const { keyword } = this.state
+    this.displaySearchResults({ keyword })
   }
 
   // checks if Enter key is pressed
@@ -50,15 +41,57 @@ class Search extends Component {
     }
   }
 
-  render () {
-    const { results } = this.state
+  // fetch listings from graphql endpoint and loads the results
+  // via loading SearchResults component
+  displaySearchResults = () => {
+    const { keyword } = this.state
 
+    const GET_LISTINGS_QUERY = gql`
+      {
+        search(keyword: "${keyword}") {
+          __typename
+            ... on Property {
+              id,
+              city,
+              state
+            }
+            ... on User {
+              id
+              firstName
+              lastName
+              properties {
+                id,
+                city,
+                state
+              }
+            }
+        }
+      }`
+
+    if (keyword) {
+      return (
+        <Query query={ GET_LISTINGS_QUERY }>
+          {({ data, loading, error }) => {
+            if (loading) {
+              return <div>Loading ...</div>;
+            }
+
+            return (
+              <SearchResults results={data}/>
+            )
+          }}
+        </Query>
+      )
+    }
+  }
+
+  render () {
     return (
       <div>
         <input type='text' name='keyword' placeholder='Enter propery or user name' onChange={this.handleChange} onKeyPress={this.handleKeyPress}/>
         <input type='button' name='submit' value='submit' onClick={this.handleSubmit}/>
 
-        <SearchResults results={results}/>
+        { this.displaySearchResults() }
       </div>
     )
   }
