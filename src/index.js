@@ -1,8 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
-import App from './App'
 import registerServiceWorker from './registerServiceWorker'
+import App from './App'
+
+// import styles
+import 'semantic-ui-css/semantic.min.css'
+import './index.css'
 
 // Integrate Apollo
 import { ApolloClient } from 'apollo-client'
@@ -15,13 +18,14 @@ import { ApolloLink } from 'apollo-link'
 const client = new ApolloClient({
   link: ApolloLink.from([
     onError(({ graphQLErrors, networkError }) => {
-      if (graphQLErrors)
+      if (graphQLErrors) {
         graphQLErrors.map(({ message, locations, path }) =>
           console.log(
-            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`,
-          ),
-        );
-      if (networkError) console.log(`[Network error]: ${networkError}`);
+            `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+          )
+        )
+      }
+      if (networkError) console.log(`[Network error]: ${networkError}`)
     }),
     new HttpLink({
       uri: 'http://localhost:5000/graphql',
@@ -32,8 +36,8 @@ const client = new ApolloClient({
 })
 
 ReactDOM.render(<ApolloProvider client={client}>
-                  <App />
-                </ApolloProvider>,
-                document.getElementById('root'))
+  <App />
+</ApolloProvider>,
+document.getElementById('root'))
 
 registerServiceWorker()

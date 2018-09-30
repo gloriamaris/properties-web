@@ -3,3 +3,15 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+.mt-5 {
+  margin-top: 50px;
+}
+
+.mt-3 {
+  margin-top: 30px;
+}
+
+.w-3 {
+  max-width: 60%; 
+}
